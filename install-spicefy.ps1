@@ -33,7 +33,7 @@ Remove-Item -Path $marketArchivePath, $unpackedFolderPath -Force
 # 8. Configureer Spicetify Marketplace
 spicetify config custom_apps spicetify-marketplace- -q
 spicetify config custom_apps marketplace --bypass-admin
-spicetify config inject_css 1 replace_colors 1
+spicetify config inject_css 1 replace_colors 1 --bypass-admin
 
 # 9. Download Marketplace kleurenthema
 Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/spicetify/marketplace/main/resources/color.ini' -OutFile "$marketThemePath\color.ini"
