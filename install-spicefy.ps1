@@ -19,9 +19,9 @@ function Write-Unsuccess {
 
 function Test-Admin {
   param ()
-  Write-Host "Checking if the script is not being run as administrator..." -NoNewline
+  Write-Host "Checking if the script IS being run as administrator..." -NoNewline
   $currentUser = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
-  -not $currentUser.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+  $currentUser.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
 function Test-PowerShellVersion {
@@ -43,6 +43,7 @@ function Move-OldSpicetifyFolder {
 
 function Get-Spicetify {
   param ()
+
   if ($env:PROCESSOR_ARCHITECTURE -eq 'AMD64') { $architecture = 'x64' }
   elseif ($env:PROCESSOR_ARCHITECTURE -eq 'ARM64') { $architecture = 'arm64' }
   else { $architecture = 'x32' }
@@ -90,29 +91,31 @@ function Install-Spicetify {
 #endregion Functions
 
 #region Main
-# Checks
+
+# PowerShell versie check
 if (-not (Test-PowerShellVersion)) {
   Write-Unsuccess
-  Write-Warning 'PowerShell 5.1 or higher is required.'
+  Write-Warning "PowerShell 5.1 or hoger vereist."
   Pause
   exit
 } else { Write-Success }
 
+# ADMIN is verplicht
 if (-not (Test-Admin)) {
   Write-Unsuccess
-  Write-Warning "Do NOT run this script as admin."
+  Write-Warning "Dit script MOET als administrator worden uitgevoerd."
   Pause
   exit
 } else { Write-Success }
 
-# Install Spicetify CLI
+# Install Spicetify
 Move-OldSpicetifyFolder
 Install-Spicetify
 
 #endregion Main
 
 #############################################################
-#   AUTOMATISCHE MARKETPLACE INSTALLATIE (jouw versie)      #
+#      AUTOMATISCHE MARKETPLACE INSTALLATIE (jouw versie)   #
 #############################################################
 
 Write-Host "`nStarting Marketplace setup..." -ForegroundColor Cyan
@@ -140,9 +143,9 @@ Move-Item "$unpackedFolderPath\*" $marketAppPath -Force
 Remove-Item $marketArchivePath, $unpackedFolderPath -Force
 
 # Configure
-spicetify config custom_apps spicetify-marketplace- -q
+spicetify config custom_apps spicetify-marketplace- -q --bypass-admin
 spicetify config custom_apps marketplace --bypass-admin
-spicetify config inject_css 1 replace_colors 1
+spicetify config inject_css 1 replace_colors 1 --bypass-admin
 
 # Download theme
 Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/spicetify/marketplace/main/resources/color.ini' -OutFile "$marketThemePath\color.ini"
